@@ -1,0 +1,27 @@
+{
+  "name": "postmantodocx",
+  "version": "1.0.0",
+  "description": "Covert Postman API Json to Docx",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alextanghk/PostmanToDocx.git"
+  },
+  "keywords": [
+    "Postman",
+    "Docx"
+  ],
+  "author": "Alex",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alextanghk/PostmanToDocx/issues"
+  },
+  "homepage": "https://github.com/alextanghk/PostmanToDocx#readme",
+  "dependencies": {
+    "docx": "^6.0.3",
+    "yargs": "^17.1.1"
+  }
+}
