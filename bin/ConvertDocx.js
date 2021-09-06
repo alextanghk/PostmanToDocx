@@ -1,9 +1,7 @@
 const fs = require("fs");
-const util = require('util');
-const path = require("path");
 const docx = require("docx");
 
-const { HeadingLevel, WidthType, BorderStyle, Document, Table, TableRow, TableCell, VerticalAlign, Paragraph, TextRun, Packer, convertInchesToTwip } = docx;
+const { HeadingLevel, WidthType, BorderStyle, Document, Table, TableRow, TableCell, Paragraph, TextRun, Packer } = docx;
 const CellStyles = {
     margins: {
         top: 50,
@@ -20,7 +18,36 @@ const NoBorder = {
     right: { style: BorderStyle.NONE, size: 2, color: "000000" },
 }
 
-function myTableRow(title, content) {
+function sectionIntro(name, description) {
+    const desc = description === undefined ? [] : description.split("\n");
+    return [new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        spacing: {
+            after: 100
+        },
+        children: [
+            new TextRun({
+                text: name,
+                bold: true
+            })
+        ],
+        spacing: {
+            after: 100
+        }
+    }),new Paragraph({
+        children: desc.length === 0 ? [new TextRun("")]: desc.map((t)=>{
+            return new TextRun({
+                text: t,
+                break: 1
+            })
+        }),
+        spacing: {
+            after: 300
+        }
+    })]
+}
+
+function requestTableRow(title, content) {
     const contentItem = (typeof content === "string") ? new Paragraph(content) : content;
     return new TableRow({
         children:[
@@ -52,142 +79,74 @@ function myTableRow(title, content) {
     })
 }
 
-function RequestTable(request) {
+function requestTable(request) {
     const rows = [
-        myTableRow("URL:",request.url.raw),
-        myTableRow("Method:",request.method),
+        requestTableRow("URL:",request.url.raw),
+        requestTableRow("Method:",request.method),
     ]
 
     if (request.auth !== undefined) {
-        rows.push(myTableRow("Authorization:",request.auth.type))
+        rows.push(requestTableRow("Authorization:",request.auth.type))
     }
 
     if (request.url.query !== undefined) {
-        rows.push(new TableRow({
-            children:[
-                new TableCell({
-                    width: {
-                        size: 20,
-                        type: WidthType.PERCENTAGE
-                    },
-                    children:[new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "Queries:",
-                                bold: true
-                            })
-                        ]
-                    })],
-                    ...CellStyles
-                }),
-                new TableCell({
-                    width: {
-                        size: 80,
-                        type: WidthType.PERCENTAGE
-                    },
-                    children:[new Table({
-                        rows: request.url.query.map((query, i)=>{
-                            return new TableRow({
-                                children:[new TableCell({
-                                    width: {
-                                        size: 20,
-                                        type: WidthType.PERCENTAGE
-                                    },
-                                    children:[new Paragraph(query.key)],
-                                    borders: {
-                                        ...NoBorder
-                                    },
-                                    ...CellStyles
-                                }),
-                                new TableCell({
-                                    width: {
-                                        size: 80,
-                                        type: WidthType.PERCENTAGE
-                                    },
-                                    children:[new Paragraph(query.description)],
-                                    borders: {
-                                        ...NoBorder
-                                    },
-                                    ...CellStyles
-                                })]
-                            })
-                        })
+        const query = new Table({
+            rows: request.url.query.map((query, i)=>{
+                return new TableRow({
+                    children:[new TableCell({
+                        width: {
+                            size: 20,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children:[new Paragraph(query.key)],
+                        borders: NoBorder,
+                        ...CellStyles
+                    }),
+                    new TableCell({
+                        width: {
+                            size: 80,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children:[new Paragraph(query.description)],
+                        borders: NoBorder,
+                        ...CellStyles
                     })]
                 })
-            ]
-        }))
+            })
+        });
+        rows.push(requestTableRow("Queries:",query))
     }
 
     if (request.header.length > 0) {
-        rows.push(new TableRow({
-            children:[
-                new TableCell({
-                    width: {
-                        size: 20,
-                        type: WidthType.PERCENTAGE
-                    },
-                    children:[new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "Headers:",
-                                bold: true
-                            })
-                        ]
-                    })],
-                    ...CellStyles
-                }),
-                new TableCell({
-                    width: {
-                        size: 80,
-                        type: WidthType.PERCENTAGE
-                    },
-                    children:[new Table({
-                        rows: request.header.map((header, i)=>{
-                            return new TableRow({
-                                children:[new TableCell({
-                                    width: {
-                                        size: 20,
-                                        type: WidthType.PERCENTAGE
-                                    },
-                                    children:[new Paragraph(header.key)],
-                                    borders: {
-                                        ...NoBorder
-                                    },
-                                    ...CellStyles
-                                }),
-                                new TableCell({
-                                    width: {
-                                        size: 80,
-                                        type: WidthType.PERCENTAGE
-                                    },
-                                    children:[new Paragraph("<"+header.type+">")],
-                                    borders: {
-                                        ...NoBorder
-                                    },
-                                    ...CellStyles
-                                })]
-                            })
-                        })
+        const header = new Table({
+            rows: request.header.map((header, i)=>{
+                return new TableRow({
+                    children:[new TableCell({
+                        width: {
+                            size: 20,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children:[new Paragraph(header.key)],
+                        borders: NoBorder,
+                        ...CellStyles
+                    }),
+                    new TableCell({
+                        width: {
+                            size: 80,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children:[new Paragraph("<"+header.type+">")],
+                        borders: NoBorder,
+                        ...CellStyles
                     })]
                 })
-            ]
-        }))
+            })
+        });
+        rows.push(requestTableRow("Header:",header))
     }
     
     if (request.body !== undefined) {
-        rows.push(myTableRow("Body:",request.body.options.raw.language))
-
-        rows.push(new TableRow({
-            children:[
-                new TableCell({
-                    columnSpan: 3,
-                    children:[new Paragraph({
-                        text: request.body.raw,
-                    })],
-                    ...CellStyles
-                }),
-            ]
-        }))
+        rows.push(requestTableRow("Body:",request.body.options.raw.language))
     }
     
     return new Table({
@@ -198,35 +157,113 @@ function RequestTable(request) {
         rows: rows
     })
 }
+
+function responseTable(response) {
+    const { name, code, status, body } = response;
+    return new Table({
+        width: {
+            size: 100,
+            type: WidthType.PERCENTAGE
+        },
+        rows:[
+            new TableRow({
+                children: [
+                    new TableCell({
+                        width: {
+                            width: 75,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children: [new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: name,
+                                    bold: true
+                                })
+                            ]
+                        })],
+                        ...CellStyles
+                    }),
+                    new TableCell({
+                        width: {
+                            width: 10,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children: [
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        text: "Status Code:",
+                                        bold: true
+                                    })
+                                ]
+                            })
+                        ],
+                        ...CellStyles
+                    }),
+                    new TableCell({
+                        width: {
+                            width: 15,
+                            type: WidthType.PERCENTAGE
+                        },
+                        children: [new Paragraph(code+" " +status)],
+                        ...CellStyles
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 3,
+                        children: [new Paragraph(body)],
+                        ...CellStyles
+                    })
+                ]
+            }),
+            new TableRow({
+                children: [
+                    new TableCell({
+                        columnSpan: 3,
+                        children: [new Paragraph("")],
+                        borders: NoBorder
+                    })
+                ]
+            })
+        ]
+    })
+}
+
+function itemIntro(name, description) {
+    const desc = description === undefined ? [] : description.split("\n");
+    return [new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        spacing: {
+            after: 100
+        },
+        border: {
+            top: { value: "single", space:50, size: 2, color: "000000" },
+        },
+        children: [
+            new TextRun({
+                text: name,
+                bold: true
+            })
+        ]
+    }),new Paragraph({
+        children: desc.length === 0 ? [new TextRun("")]: desc.map((t)=>{
+            return new TextRun({
+                text: t,
+                break: 1
+            })
+        })
+    })]
+}
+
 function ConvertDocx(output, json) {
-    
-    
-    
+
     const myDoc = new Document({
         sections: json.map((page) => {
             const children = page.item.reduce((result,item,index)=>{
-                result = result.concat([new Paragraph({
-                    heading: HeadingLevel.HEADING_2,
-                    spacing: {
-                        after: 100
-                    },
-                    border: {
-                        top: { value: "single", space:50, size: 2, color: "000000" },
-                    },
-                    children: [
-                        new TextRun({
-                            text: item.name,
-                            bold: true
-                        })
-                    ]
-                }),new Paragraph({
-                    children: item.request.description === undefined ? [new TextRun("")]: item.request.description.split("\n").map((desc)=>{
-                        return new TextRun({
-                            text: desc,
-                            break: 1
-                        })
-                    })
-                })])
+                result = result.concat(itemIntro(item.name,item.request.description))
                 
                 result.push(new Paragraph({
                     text: "Request:",
@@ -236,105 +273,19 @@ function ConvertDocx(output, json) {
                         after: 100
                     }
                 }));
-                result.push(RequestTable(item.request));
+                result.push(requestTable(item.request));
     
                 if (item.response.length > 0) {
-                    result.push(new Paragraph({
-                        text: "",
-                        spacing: {
-                            before: 200,
-                            after: 200
-                        }
-                    }))
-        
                     result.push(new Paragraph({
                         text: "Response Example:",
                         heading: HeadingLevel.HEADING_3,
                         spacing: {
                             before: 200,
-                            after: 200
+                            after: 100
                         }
                     }))
         
-                    result = result.concat(item.response.map((response)=>{
-                        return (new Table({
-                            width: {
-                                size: 100,
-                                type: WidthType.PERCENTAGE
-                            },
-                            rows:[
-                                new TableRow({
-                                    children: [
-                                        new TableCell({
-                                            width: {
-                                                width: 75,
-                                                type: WidthType.PERCENTAGE
-                                            },
-                                            children: [new Paragraph({
-                                                children: [
-                                                    new TextRun({
-                                                        text: response.name,
-                                                        bold: true
-                                                    })
-                                                ]
-                                            })],
-                                            borders: {top: { style: BorderStyle.SINGLE, size: 2, color: "000000" }},
-                                            ...CellStyles
-                                        }),
-                                        new TableCell({
-                                            width: {
-                                                width: 10,
-                                                type: WidthType.PERCENTAGE
-                                            },
-                                            children: [
-                                                new Paragraph({
-                                                    children: [
-                                                        new TextRun({
-                                                            text: "Status Code:",
-                                                            bold: true
-                                                        })
-                                                    ]
-                                                })
-                                            ],
-                                            borders: {top: { style: BorderStyle.SINGLE, size: 2, color: "000000" }},
-                                            ...CellStyles
-                                        }),
-                                        new TableCell({
-                                            width: {
-                                                width: 15,
-                                                type: WidthType.PERCENTAGE
-                                            },
-                                            children: [new Paragraph(response.code+" " +response.status)],
-                                            borders: {top: { style: BorderStyle.SINGLE, size: 2, color: "000000" }},
-                                            ...CellStyles
-                                        })
-                                    ]
-                                }),
-                                new TableRow({
-                                    children: [
-                                        new TableCell({
-                                            columnSpan: 3,
-                                            children: [new Paragraph(response.body)],
-                                            ...CellStyles
-                                        })
-                                    ]
-                                }),
-                                new TableRow({
-                                    children: [
-                                        new TableCell({
-                                            columnSpan: 3,
-                                            children: [new Paragraph("")],
-                                            borders: {
-                                                right: { style: BorderStyle.NONE, size: 2, color: "000000" },
-                                                bottom: { style: BorderStyle.NONE, size: 2, color: "000000" },
-                                                left: { style: BorderStyle.NONE, size: 2, color: "000000" }
-                                            }
-                                        })
-                                    ]
-                                })
-                            ]
-                        }))
-                    }))
+                    result = result.concat(item.response.map(responseTable))
                 }
     
                 // Add break between item
@@ -347,34 +298,12 @@ function ConvertDocx(output, json) {
                 }))
                 return result;
             },[])
-            
-            children.unshift(
-                new Paragraph({
-                    children:[
-                        new TextRun({
-                            text: page.info.name,
-                            bold: true
-                        })
-                    ],
-                    heading: HeadingLevel.HEADING_1,
-                    spacing: {
-                        after: 100
-                    }
-                }),
-                new Paragraph({
-                    children: page.info.description === undefined ? [new TextRun("")]: page.info.description.split("\n").map((desc)=>{
-                            return new TextRun({
-                                text: desc,
-                                break: 1
-                            })
-                        }),
-                    spacing: {
-                        after: 500
-                    }
-                })
-            );
+            const sIntro = sectionIntro(page.info.name, page.info.description);
             return ({
-                children: children
+                children: [
+                    ...sIntro,
+                    ...children
+                ]
             })
         })
     })

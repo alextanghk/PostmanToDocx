@@ -1,5 +1,5 @@
 {
-  "name": "postmantodocx",
+  "name": "postman-to-docx",
   "version": "1.0.0",
   "description": "Covert Postman API Json to Docx",
   "main": "index.js",
@@ -25,6 +25,7 @@
   "homepage": "https://github.com/alextanghk/PostmanToDocx#readme",
   "dependencies": {
     "docx": "^6.0.3",
+    "lodash": "^4.17.21",
     "yargs": "^17.1.1"
   },
   "devDependencies": {}
