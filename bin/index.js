@@ -1,8 +1,10 @@
+#!/usr/bin/env node
+
 const fs = require("fs");
 const util = require('util');
 const path = require("path");
 
-const ConvertDocx = require("./bin/ConvertDocx");
+const ConvertDocx = require("./ConvertDocx");
 
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
@@ -34,6 +36,5 @@ let apiJson = require(source);
 if (!Array.isArray(apiJson)) 
 {
     apiJson = [apiJson];
-    console.log("change to array");
 }
 ConvertDocx(path.join(output,basename.replace(".json",".docx")), apiJson);
