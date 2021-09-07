@@ -391,9 +391,15 @@ function ConvertDocx(json, options = {}) {
     })
     
     const { output } = options;
-    Packer.toBuffer(myDoc).then((buffer)=> {
+    return Packer.toBuffer(myDoc).then((buffer)=> {
         console.log("Saving file to %s",output);
-        fs.writeFileSync(output,buffer)
+        return new Promise((resolve, reject)=> {
+            fs.writeFile(output, buffer, (err)=>{
+                if (err) reject(err);
+                resolve(true);
+            })
+        })
+        // fs.writeFileSync(output,buffer)
     })
 }
 module.exports = ConvertDocx;

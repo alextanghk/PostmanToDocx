@@ -75,10 +75,7 @@ const schemaVersion = argv.schema;
 // Validation Schema
 const apiJson = require(source);
 
-const schemaUrls = {
-    "2.1.0": "https://schema.postman.com/collection/json/v2.1.0/draft-07/collection.json",
-    "2.0.0": "https://schema.postman.com/collection/json/v2.0.0/draft-07/collection.json"
-}
+const schemaUrls = require("../schema.json");
 
 if (
     schemaUrls[schemaVersion] === "" ||  
@@ -127,9 +124,11 @@ p.then((schema) =>{
         return parseSchema(section, schemaVersion);
     });
 }).then((json)=>{
-    ConvertDocx(json, {
+    return ConvertDocx(json, {
         output: path.join(output,basename.replace(".json",".docx"))
     });
+}).then((result)=>{
+    console.log("File saved!");
 }).catch((err)=>{
     throw new Error(err.message);
 })
