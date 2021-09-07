@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/alextanghk/PostmanToDocx#readme",
   "dependencies": {
+    "ajv": "^8.6.2",
     "docx": "^6.0.3",
     "lodash": "^4.17.21",
     "yargs": "^17.1.1"

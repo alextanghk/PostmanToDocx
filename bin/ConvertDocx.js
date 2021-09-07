@@ -343,8 +343,8 @@ function itemBody(item) {
     return result;
 }
 
-function ConvertDocx(output, json) {
-
+function ConvertDocx(source, options = {}) {
+    const json = (source instanceof Array) ? source: [source];
     const myDoc = new Document({
         sections: json.map((page) => {
 
@@ -399,7 +399,9 @@ function ConvertDocx(output, json) {
         })
     })
     
+    const { output } = options;
     Packer.toBuffer(myDoc).then((buffer)=> {
+        console.log("Saving file to %s",output);
         fs.writeFileSync(output,buffer)
     })
 }
