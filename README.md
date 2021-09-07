@@ -28,6 +28,6 @@ Node JS Version: 12 or above
 
 
 ````
-$ npm i postman-to-docx -g
+$ npm i postman-to-doc -g
 $ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>]
 ````

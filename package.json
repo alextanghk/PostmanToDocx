@@ -1,6 +1,6 @@
 {
-  "name": "postman-to-docx",
-  "version": "1.0.1",
+  "name": "postman-to-doc",
+  "version": "1.0.0",
   "description": "Covert Postman API Json to Docx",
   "main": "index.js",
   "scripts": {
