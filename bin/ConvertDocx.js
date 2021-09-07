@@ -296,8 +296,6 @@ function responseTable(response) {
 
 function itemBody(item) {
     const { request, response=[] } = item;
-    // const { name, request:{ description = "" }={description: ""}} = item
-    
     let result = introduction(_.get(item,"name",""), _.get(item,"request.description",""), HeadingLevel.HEADING_3);
     if (request !== undefined)
     {
