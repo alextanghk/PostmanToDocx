@@ -61,7 +61,7 @@ postmanToDocx("2.1.0","/Souces/API.json","/Export");
 You can also use cli to convert the json to docx file.
 <br />
 ````
-$ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>, --schema=<SCHEMA_VERSION>]
+$ p2dx --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>, --schema=<SCHEMA_VERSION>]
 選項：
       --version  顯示版本                                                 [布林]
   -s, --source   Full path of the json file.                       [字串] [必填]
@@ -71,12 +71,12 @@ $ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATI
   -h, --help     顯示說明                                                 [布林]
 
 範例：
-  convert-postman --source=/root/API.json          Export to same directory
-  convert-postman --source=/root/API.json          Export to same directory with schema
-  --schema=2.1.0                                   version
-  convert-postman --source=/root/API.json          Export to other directory
+  p2dx --source=/root/API.json          Export to same directory
+  p2dx --source=/root/API.json          Export to same directory with schema
+  --schema=2.1.0                        version
+  p2dx --source=/root/API.json          Export to other directory
   --output=/Export/
-  convert-postman --source=/root/API.json          Export to other directory with
-  --output=/Export/ --schema=2.1.0                 schema version
+  p2dx --source=/root/API.json          Export to other directory with
+  --output=/Export/ --schema=2.1.0      schema version
 ````
 

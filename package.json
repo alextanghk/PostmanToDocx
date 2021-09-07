@@ -1,7 +1,7 @@
 {
   "name": "postman-to-docx",
   "version": "1.0.0",
-  "description": "Covert Postman API to Docx cli tools",
+  "description": "Covert Postman API to Docx",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,7 +15,7 @@
     "Docx"
   ],
   "bin": {
-    "convert-postman": "./bin/index.js"
+    "p2dx": "./bin/index.js"
   },
   "author": "Alex",
   "license": "ISC",
