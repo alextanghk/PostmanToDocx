@@ -296,8 +296,6 @@ function responseTable(response) {
 
 function itemBody(item) {
     const { request, response=[] } = item;
-    // const { name, request:{ description = "" }={description: ""}} = item
-    
     let result = introduction(_.get(item,"name",""), _.get(item,"request.description",""), HeadingLevel.HEADING_3);
     if (request !== undefined)
     {
@@ -343,8 +341,8 @@ function itemBody(item) {
     return result;
 }
 
-function ConvertDocx(output, json) {
-
+function ConvertDocx(source, options = {}) {
+    const json = (source instanceof Array) ? source: [source];
     const myDoc = new Document({
         sections: json.map((page) => {
 
@@ -389,17 +387,19 @@ function ConvertDocx(output, json) {
                 return result;
             },[]);
 
-            const sIntro = introduction(info.name,_.get(info,"description",""));
+            const intro = introduction(info.name,_.get(info,"description",""));
             return ({
                 children: [
-                    ...sIntro,
+                    ...intro,
                     ...children
                 ]
             })
         })
     })
     
+    const { output } = options;
     Packer.toBuffer(myDoc).then((buffer)=> {
+        console.log("Saving file to %s",output);
         fs.writeFileSync(output,buffer)
     })
 }

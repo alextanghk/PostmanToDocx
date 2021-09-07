@@ -4,13 +4,17 @@ CLI tool to convert Postman collection(v2.1) Json file to word document(docx).
 
 - [Description](#description)
 - [Environment](#environment)
+- [Supporting Schema](#supporting-schema)
 - [Usage](#usage)
+
+<br />
 
 ## Description
 
-Postman is a very useful tools for API testing and documentation, however it didn't provide the option on exporting the API document to Word document, so I create my own cli to serve this purpose. 
+<br />
 
-This tools will convert the collection (v2.1) json into a word document, you can combine two collection json to a array in single file.
+Postman is a very useful tool for API testing and documentation, however it didn't provide the option on exporting the API document to Word document, so I create my own cli to serve this purpose. 
+
 
 <br />
 
@@ -21,6 +25,15 @@ This tools will convert the collection (v2.1) json into a word document, you can
 Node JS Version: 12 or above
 
 <br />
+
+## Supporting Schema
+
+<br />
+
+- https://schema.postman.com/collection/json/v2.1.0/draft-07/collection.json
+
+<br />
+
 
 ## Usage
 
