@@ -11,17 +11,36 @@ const { hideBin } = require('yargs/helpers');
 const https = require('https');
 const { strict } = require("yargs");
 const argv = yargs(hideBin(process.argv))
-    .option('source',{
-        alias: "s",
-        string: true,
-        default: "",
-        describe: "Full path of the json file."
-    })
-    .option('output',{
-        alias: "o",
-        string: true,
-        default: "",
-        describe: "Output file path"
+    .example([
+        ['$0 --source=/root/API.json', "Export to same directory"],
+        ['$0 --source=/root/API.json --output=/Export/', "Export to other directory"]
+    ])
+    .options({
+        "source" : {
+            alias: "s",
+            string: true,
+            demandOption: "Sources cannot be empty",
+            describe: "Full path of the json file."
+        },
+        "output": {
+            alias: "o",
+            string: true,
+            default: "",
+            describe: "Output file path"
+        }
+    }).check((argv, option)=>{
+        const source = argv.source;
+        const output = argv.output;
+        if (!fs.existsSync(source)) {
+            throw new Error(`Cannot found source file from ${source}`);
+        }
+        if (output != "") {
+            if (fs.existsSync(output) && !fs.lstatSync(output).isDirectory()) {
+                throw new Error("Output value is not a directory");
+                
+            }
+        }
+        return true;
     })
     .help()
     .alias('help', 'h')
@@ -31,15 +50,9 @@ const argv = yargs(hideBin(process.argv))
 const source = argv.source;
 
 console.log("Reading file from %s", source);
-if (!fs.existsSync(source)) {
-    throw new Error("File not found");
-}
+
 const basename = path.basename(source);
 const output = argv.output == "" ? source.replace(basename,""): argv.output;
-
-if (fs.existsSync(output) && !fs.lstatSync(output).isDirectory()) {
-    throw new Error("Output value is not a directory");
-}
 
 if (!fs.existsSync(output)) {
     console.log("Directory not exist, creating the folder");

@@ -389,10 +389,10 @@ function ConvertDocx(source, options = {}) {
                 return result;
             },[]);
 
-            const sIntro = introduction(info.name,_.get(info,"description",""));
+            const intro = introduction(info.name,_.get(info,"description",""));
             return ({
                 children: [
-                    ...sIntro,
+                    ...intro,
                     ...children
                 ]
             })
