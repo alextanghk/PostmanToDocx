@@ -59,25 +59,11 @@ function twoColumnRow(title, content) {
     })
 }
 
-function descriptionEle(description, options = {}) {
-    const desc = description === undefined || description === null ? [] : description.split("\n");
-    return new Paragraph({
-        children: desc.length === 0 ? [new TextRun("")]: desc.map((t)=>{
-            return new TextRun({
-                text: t,
-                break: 1
-            })
-        }),
-        ...options
-    })
-}
-
 // Intro function
-function sectionIntro(info) {
-    const { name, description = ""} = info;
+function introduction(name, description, heading = HeadingLevel.HEADING_1) {
     const desc = description === undefined ? [] : description.split("\n");
     return [new Paragraph({
-        heading: HeadingLevel.HEADING_1,
+        heading: heading,
         spacing: {
             after: 100
         },
@@ -91,33 +77,18 @@ function sectionIntro(info) {
             after: 100
         }
     }),
-        descriptionEle(description,{spacing: {
-            after: 300
-        }})
-    ]
-}
-
-function itemIntro(item) {
-    const { name, request:{ description = "" }={description: ""}} = item
-    return [new Paragraph({
-        heading: HeadingLevel.HEADING_2,
-        spacing: {
-            after: 100
-        },
-        border: {
-            top: { value: "single", space:50, size: 2, color: "000000" },
-        },
-        children: [
-            new TextRun({
-                text: name,
-                bold: true
+    new Paragraph({
+        children: desc.length === 0 ? [new TextRun("")]: desc.map((t)=>{
+            return new TextRun({
+                text: t,
+                break: 1
             })
-        ]
-    }),
-        descriptionEle(description)
-    ]
+        }),
+        spacing: {
+            after: 200
+        }
+    })]
 }
-
 
 function requestTable(request) {
 
@@ -325,19 +296,20 @@ function responseTable(response) {
 
 function itemBody(item) {
     const { request, response=[] } = item;
+    // const { name, request:{ description = "" }={description: ""}} = item
     
-    let result = itemIntro(item);
+    let result = introduction(_.get(item,"name",""), _.get(item,"request.description",""), HeadingLevel.HEADING_3);
     if (request !== undefined)
     {
         result.push(new Paragraph({
             text: "Request:",
-            heading: HeadingLevel.HEADING_3,
+            heading: HeadingLevel.HEADING_4,
             spacing: {
                 before: 200,
                 after: 100
             }
         }));
-        
+
         result.push(new Table({
             width: {
                 size: 100,
@@ -349,7 +321,7 @@ function itemBody(item) {
     if (response !== undefined && response.length > 0) {
         result.push(new Paragraph({
             text: "Response Example:",
-            heading: HeadingLevel.HEADING_3,
+            heading: HeadingLevel.HEADING_4,
             spacing: {
                 before: 200,
                 after: 100
@@ -379,15 +351,32 @@ function ConvertDocx(output, json) {
             const { item, info } = page
 
             const children = item.reduce((result,item,index)=>{
-
+                
                 if (item.item === undefined) {
+                    result.push(new Paragraph({
+                        test: "",
+                        spacing: {
+                            after: 100
+                        },
+                        border: {
+                            top: { value: "single", space:50, size: 2, color: "000000" },
+                        }
+                    }))
                     result = result.concat(itemBody(item));
                 } else {
                     result.push(new Paragraph({
-                        text: item.name,
                         heading: HeadingLevel.HEADING_2,
+                        children:[
+                            new TextRun({
+                                text: item.name,
+                                bold: true
+                            })
+                        ],
                         spacing: {
                             before: 200
+                        },
+                        border: {
+                            top: { value: "single", space:50, size: 2, color: "000000" },
                         }
                     }))
                     const subItem = item.item.reduce((sr, sv, si) =>{
@@ -400,7 +389,7 @@ function ConvertDocx(output, json) {
                 return result;
             },[]);
 
-            const sIntro = sectionIntro(info);
+            const sIntro = introduction(info.name,_.get(info,"description",""));
             return ({
                 children: [
                     ...sIntro,
