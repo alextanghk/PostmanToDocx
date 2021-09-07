@@ -33,8 +33,12 @@ const basename = path.basename(source);
 const output = argv.output == "" ? source.replace(basename,""): argv.output;
 
 let apiJson = require(source);
+
 if (!Array.isArray(apiJson)) 
 {
     apiJson = [apiJson];
 }
+
+
+
 ConvertDocx(path.join(output,basename.replace(".json",".docx")), apiJson);
