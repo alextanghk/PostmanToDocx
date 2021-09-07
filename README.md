@@ -1,11 +1,12 @@
-# Convert Postman API Document Json
+# Convert Postman API Document Json CLI tool
 
-CLI tool to convert Postman collection Json file to word document(docx).
+CLI tool to convert Postman collection Json file to MS Word document(docx).
 
 - [Description](#description)
 - [Environment](#environment)
 - [Supporting Schema](#supporting-schema)
 - [Usage](#usage)
+- [Command](#command)
 
 <br />
 
@@ -13,7 +14,7 @@ CLI tool to convert Postman collection Json file to word document(docx).
 
 <br />
 
-Postman is a very useful tool for API testing and documentation, however it didn't provide the option on exporting the API document to Word document, so I create my own cli to serve this purpose. 
+Postman is a very useful tool for API testing and documentation, however it didn't provide the option on exporting the API document to Word document, so I created my own cli to serve this purpose. 
 
 
 <br />
@@ -40,8 +41,32 @@ Node JS Version: 12 or above
 
 <br />
 
+````
+$ npm i postman-to-docx -g
+$ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>, --schema=<SCHEMA_VERSION>]
+````
+
+<br />
+
+## Command
+
+<br />
 
 ````
-$ npm i postman-to-doc -g
-$ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>, --schema=<SCHEMA_VERSION>]
+選項：
+      --version  顯示版本                                                 [布林]
+  -s, --source   Full path of the json file.                       [字串] [必填]
+  -o, --output   Output file path                           [字串] [預設值： ""]
+  -c, --schema   Version of Postman Collection schema
+                           [String] [可選值： "2.1.0", "2.0.0"] [預設值： "2.1.0"]
+  -h, --help     顯示說明                                                 [布林]
+
+範例：
+  convert-postman --source=/root/API.json          Export to same directory
+  convert-postman --source=/root/API.json          Export to same directory with schema
+  --schema=2.1.0                                   version
+  convert-postman --source=/root/API.json          Export to other directory
+  --output=/Export/
+  convert-postman --source=/root/API.json          Export to other directory with
+  --output=/Export/ --schema=2.1.0                 schema version
 ````

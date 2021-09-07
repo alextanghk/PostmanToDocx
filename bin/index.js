@@ -36,7 +36,8 @@ const argv = yargs(hideBin(process.argv))
             alias:"c",
             string: true,
             default: "2.1.0",
-            describe: "Version of Postman Collection schema"
+            describe: "Version of Postman Collection schema",
+            choices: ['2.1.0','2.0.0']
         }
     }).check((argv, option)=>{
         const source = argv.source;
