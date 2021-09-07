@@ -22,12 +22,7 @@ const NoBorder = {
 }
 
 // Global Function
-function urlFormating(url) {
-    const { protocol, host, path, query } = url;
-    const result = `${protocol}://${host.join(".")}/${path.join("/")}${query !== undefined ? "?"+query.reduce((r,v,k)=>{ r = `${r}&${v.key}=${v.value}`; return r; },"") : ""}`;
 
-    return result;
-}
 function twoColumnRow(title, content) {
     const contentItem = (typeof content === "string") ? new Paragraph(content) : content;
     return new TableRow({
@@ -92,18 +87,15 @@ function introduction(name, description, heading = HeadingLevel.HEADING_1) {
 
 function requestTable(request) {
 
-    const { url, url: {query}, method, body } = request;
+    const { url, query, method, body } = request;
 
     const rows = [
-        twoColumnRow("URL:",urlFormating(url)),
+        twoColumnRow("URL:",url),
         twoColumnRow("Method:",method),
+        twoColumnRow("Authorization:",request.auth.type)
     ]
 
-    if (request.auth !== undefined) {
-        rows.push(twoColumnRow("Authorization:",request.auth.type))
-    }
-
-    if (query !== undefined && query.length > 0) {
+    if (query.length > 0) {
         const queryRow = query.map((q, i)=>{
             const { key = "", value = "", description = "" } = q;
 
@@ -223,9 +215,9 @@ function requestTable(request) {
         rows.push(twoColumnRow("Header:",header))
     }
     
-    if (body !== undefined) {
+    if (body !== "") {
         
-        rows.push(twoColumnRow("Request Body:",_.get(body,"options.raw.language","")))
+        rows.push(twoColumnRow("Request Body:",body))
         rows.push(new TableRow({
             children: [
                 new TableCell({
@@ -245,8 +237,8 @@ function requestTable(request) {
 }
 
 function responseTable(response) {
-    const { name, code, status, body, originalRequest } = response;
-    const rows = requestTable(originalRequest);
+    const { name, code, status, body, request } = response;
+    const rows = requestTable(request);
     rows.unshift(twoColumnRow("Name:",name))
     rows.push(twoColumnRow("Status Code:",code+" " +status))
     rows.push(new TableRow({
@@ -296,7 +288,7 @@ function responseTable(response) {
 
 function itemBody(item) {
     const { request, response=[] } = item;
-    let result = introduction(_.get(item,"name",""), _.get(item,"request.description",""), HeadingLevel.HEADING_3);
+    let result = introduction(_.get(item,"name",""), _.get(item,"description",""), HeadingLevel.HEADING_3);
     if (request !== undefined)
     {
         result.push(new Paragraph({
@@ -341,8 +333,8 @@ function itemBody(item) {
     return result;
 }
 
-function ConvertDocx(source, options = {}) {
-    const json = (source instanceof Array) ? source: [source];
+function ConvertDocx(json, options = {}) {
+    
     const myDoc = new Document({
         sections: json.map((page) => {
 
@@ -362,21 +354,22 @@ function ConvertDocx(source, options = {}) {
                     }))
                     result = result.concat(itemBody(item));
                 } else {
+                    
                     result.push(new Paragraph({
-                        heading: HeadingLevel.HEADING_2,
                         children:[
                             new TextRun({
-                                text: item.name,
+                                text: "",
                                 bold: true
                             })
                         ],
-                        spacing: {
-                            before: 200
-                        },
                         border: {
                             top: { value: "single", space:50, size: 2, color: "000000" },
                         }
                     }))
+
+                    const itemIntro = introduction(item.name,_.get(item,"description",""),HeadingLevel.HEADING_2);
+                    result = result.concat(itemIntro);
+
                     const subItem = item.item.reduce((sr, sv, si) =>{
                         sr = sr.concat(itemBody(sv));
                         return sr;

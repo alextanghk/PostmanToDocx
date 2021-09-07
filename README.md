@@ -1,6 +1,6 @@
 # Convert Postman API Document Json
 
-CLI tool to convert Postman collection(v2.1) Json file to word document(docx).
+CLI tool to convert Postman collection Json file to word document(docx).
 
 - [Description](#description)
 - [Environment](#environment)
@@ -30,6 +30,7 @@ Node JS Version: 12 or above
 
 <br />
 
+- https://schema.postman.com/collection/json/v2.0.0/draft-07/collection.json
 - https://schema.postman.com/collection/json/v2.1.0/draft-07/collection.json
 
 <br />
@@ -42,5 +43,5 @@ Node JS Version: 12 or above
 
 ````
 $ npm i postman-to-doc -g
-$ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>]
+$ convert-postman --sources=<FULL_PATH_OF_JSON> [--output=<PATH_OF_OUTPUT_LOCATION>, --schema=<SCHEMA_VERSION>]
 ````

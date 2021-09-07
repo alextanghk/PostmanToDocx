@@ -2,31 +2,41 @@
 "use strict"
 
 const fs = require("fs");
-const util = require('util');
 const path = require("path");
-const ConvertDocx = require("./ConvertDocx");
 const Ajv = require("ajv")
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const https = require('https');
-const { strict } = require("yargs");
+
+
+const ConvertDocx = require("./ConvertDocx");
+const parseSchema = require("./schema/schema");
+
 const argv = yargs(hideBin(process.argv))
     .example([
         ['$0 --source=/root/API.json', "Export to same directory"],
-        ['$0 --source=/root/API.json --output=/Export/', "Export to other directory"]
+        ['$0 --source=/root/API.json --schema=2.1.0', "Export to same directory with schema version"],
+        ['$0 --source=/root/API.json --output=/Export/', "Export to other directory"],
+        ['$0 --source=/root/API.json --output=/Export/ --schema=2.1.0', "Export to other directory with schema version"]
     ])
     .options({
         "source" : {
-            alias: "s",
+            alias:"s",
             string: true,
             demandOption: "Sources cannot be empty",
             describe: "Full path of the json file."
         },
         "output": {
-            alias: "o",
+            alias:"o",
             string: true,
             default: "",
             describe: "Output file path"
+        },
+        "schema": {
+            alias:"c",
+            string: true,
+            default: "2.1.0",
+            describe: "Version of Postman Collection schema"
         }
     }).check((argv, option)=>{
         const source = argv.source;
@@ -59,38 +69,66 @@ if (!fs.existsSync(output)) {
     fs.mkdirSync(output,{recursive: true});
 }
 
+const schemaVersion = argv.schema;
+
 // Validation Schema
 const apiJson = require(source);
 
-https.get("https://schema.postman.com/collection/json/v2.1.0/draft-07/collection.json", (res)=>{
-    let body = "";
-    res.on("data",(chunk)=>{
-        body += chunk;
-    });
+const schemaUrls = {
+    "2.1.0": "https://schema.postman.com/collection/json/v2.1.0/draft-07/collection.json",
+    "2.0.0": "https://schema.postman.com/collection/json/v2.0.0/draft-07/collection.json"
+}
 
-    res.on("end",()=>{
-        const schema = JSON.parse(body);
-        const ajv = new Ajv({
-            strict: false
+if (
+    schemaUrls[schemaVersion] === "" ||  
+    schemaUrls[schemaVersion] === undefined ||
+    schemaUrls[schemaVersion] === null
+)
+{
+    throw new Error(`Do not support this schema version v${schemaVersion}`);
+}
+let p = new Promise((resolve, reject)=>{
+    https.get(schemaUrls[schemaVersion], (res)=>{
+        let body = "";
+        res.on("data",(chunk)=>{
+            body += chunk;
         });
-        const validate = ajv.compile(schema);
-        if (!Array.isArray(apiJson)) 
-        {
-            if (!validate(apiJson)) {
-                throw new Error("Only support Postman Collection v2.1.0");
+
+        res.on("end",()=>{
+            try {
+                let schema = JSON.parse(body);
+                resolve(schema);
+            } catch(e) {
+                reject(`Got error: ${e.message}`);
             }
-        } else {
-            if (apiJson.length < 1) {
-                throw new Error("Source cannot be empty");
-            }
-            for(let item of apiJson) {
-                if (!validate(item)) {
-                    throw new Error("Only support Postman Collection v2.1.0");
-                }
-            }
+        })
+    }).on('error', (e) => {
+        reject(`Got error: ${e.message}`);
+    });
+})
+
+p.then((schema) =>{
+    const ajv = new Ajv({
+        strict: false
+    });
+    const validate = ajv.compile(schema);
+    const json = (apiJson instanceof Array) ? apiJson: [apiJson];
+    if (json.length < 1) {
+        Promise.reject("Source cannot be empty");
+    }
+    for(let item of json) {
+        if (!validate(item)) {
+            Promise.reject(`Source schema invalid`);
         }
-        ConvertDocx(apiJson, {
-            output: path.join(output,basename.replace(".json",".docx"))
-        });
-    })
+    }
+    
+    return json.map((section)=>{
+        return parseSchema(section, schemaVersion);
+    });
+}).then((json)=>{
+    ConvertDocx(json, {
+        output: path.join(output,basename.replace(".json",".docx"))
+    });
+}).catch((err)=>{
+    throw new Error(err.message);
 })
