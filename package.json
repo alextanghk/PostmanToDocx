@@ -1,5 +1,5 @@
 {
-  "name": "postman-to-docx",
+  "name": "postman-to-word",
   "version": "1.0.0",
   "description": "Covert Postman API to Docx",
   "main": "index.js",
@@ -12,7 +12,7 @@
   },
   "keywords": [
     "Postman",
-    "Docx"
+    "Word"
   ],
   "bin": {
     "p2dx": "./bin/index.js"

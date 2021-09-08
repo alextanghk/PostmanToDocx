@@ -39,8 +39,8 @@ Node JS Version: 12 or above
 
 ## Installation 
 ````
-$ npm i postman-to-docx -g // For cli
-$ npm i postman-to-docx // For node project
+$ npm i postman-to-word -g // For cli
+$ npm i postman-to-word // For node project
 ````
 <br />
 
@@ -48,7 +48,7 @@ $ npm i postman-to-docx // For node project
 To use this function in your code:
 <br />
 ````
-const postmanToDocx = require("postman-to-docx");
+const postmanToDocx = require("postman-to-word");
 
 // Promise return with true if success and throw Error when fail.
 // postmanToDocx(schema: string, source: string, [outputPath: string])
